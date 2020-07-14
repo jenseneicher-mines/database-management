@@ -1,0 +1,66 @@
+-- Project 3. Harry potter books. 
+-- Jensen Eicher
+
+-- DROP tables for re-run case
+DROP TABLE IF EXISTS books2;
+DROP TABLE IF EXISTS books1;
+DROP TABLE IF EXISTS books;
+
+
+    -- STEP 1: CREATE TABLE statement books1
+    CREATE TABLE books1 (
+        number INTEGER PRIMARY KEY,
+        title TEXT,
+        isbn_number TEXT,
+        publication_date DATE,
+        page_count INTEGER
+    );
+
+-- STEP 2: INSERT values into columns
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (1, 'Harry Potter and the Philosopher''s Stone', '0-7475-3269-9', '1997-06-26', 223);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (2, 'Harry Potter and the Chamber of Secrets', '0-7475-3849-2', '1998-07-02', 251);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (3, 'Harry Potter and the Prisoner of Azkaban', '0-7475-4215-5', '1999-07-08', 317);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (4, 'Harry Potter and the Goblet of Fire', '0-7475-4624-X', '2000-07-08', 636);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (5, 'Harry Potter and the Order of the Phoenix', '0-7475-5100-6', '2003-06-21', 766);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (6, 'Harry Potter and the Half-Blood Prince', '0-7475-8108-8', '2005-07-16	', 607);
+INSERT INTO books1 (number, title, isbn_number, publication_date, page_count) values (7, 'Harry Potter and the Deathly Hallows', '0-545-01022-5', '2007-07-21', 607);
+INSERT INTO books1 (number, title, isbn_number, publication_date) values (8, 'Harry Potter and the Bunnies of Doom', '1-234-56789-0', '2010-01-15');
+
+
+
+-- STEP 3: DELETE Bunnies of Doom
+DELETE FROM books1 WHERE number = 8;
+
+
+-- STEP 5: CREATE TABLE books2
+CREATE TABLE books2 AS SELECT * FROM public.project3_us_books;
+
+-- STEP 6: CREATE TABLE books -- final combined table
+CREATE TABLE books (
+        number INTEGER PRIMARY KEY,
+        title TEXT,
+        isbn_number TEXT,
+        publication_date DATE,
+        page_count INTEGER,
+        us_title TEXT,
+        us_publication_date DATE,
+        us_pages INTEGER
+    );
+
+-- STEP 7: insert all data from books1 and books2 into books
+INSERT INTO books SELECT books1.number, books1.title, books1.isbn_number, books1.publication_date, books1.page_count, NULL, books2.publicationdate, books2.pages FROM books1, books2 WHERE books1.number = books2.number;
+
+-- STEP 8: fill us title column
+UPDATE books SET us_title = title;
+
+-- STEP 9: Fix us title name
+UPDATE books SET us_title = 'Harry Potter and the Sorcerer''s Stone' WHERE number = 1;
+
+-- Show all tables
+-- Books1
+SELECT * FROM books1;
+-- Books2
+SELECT * FROM books2;
+-- Final table
+SELECT * FROM books;
+

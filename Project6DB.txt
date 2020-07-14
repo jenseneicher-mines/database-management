@@ -1,0 +1,48 @@
+-- Jensen Eicher, 10/20/19, Database Management Project 6
+
+CREATE TABLE reviewer (
+    screen_name TEXT,
+    identity_provider TEXT,
+    PRIMARY KEY (screen_name,identity_provider)
+    );
+
+CREATE TABLE chain (
+        city TEXT,
+        name TEXT PRIMARY KEY,
+        state VARCHAR(2)
+    );
+
+CREATE TABLE business (
+        ID SERIAL PRIMARY KEY,
+        name TEXT,
+        street_address TEXT,
+        city TEXT,
+        state VARCHAR(2),
+        zip TEXT,      -- must be text for leading zeros
+        chain TEXT REFERENCES chain(name)
+    );
+
+CREATE TABLE menu (
+        label TEXT,
+        url TEXT,
+        business SERIAL REFERENCES business(ID),
+        PRIMARY KEY (business, label)
+    );
+
+CREATE TABLE business_type_table (
+        business_type TEXT,
+        business_ID SERIAL REFERENCES business(ID),
+        PRIMARY KEY (business_ID,business_type)
+    );
+
+CREATE TABLE business_reviewer_xref (
+    views INTEGER,
+    rating INTEGER NOT NULL CHECK ( rating < 6 AND rating > -1),
+    review_date DATE,
+    comments TEXT,
+    reviewer_business_ID SERIAL REFERENCES business(ID),
+    reviewer_screen_name TEXT,
+    reviewer_identity_provider TEXT,
+    PRIMARY KEY ( reviewer_business_ID,reviewer_screen_name,reviewer_identity_provider),
+    FOREIGN KEY (reviewer_screen_name,reviewer_identity_provider) REFERENCES reviewer(screen_name, identity_provider)
+    );

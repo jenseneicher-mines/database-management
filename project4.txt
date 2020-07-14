@@ -1,0 +1,51 @@
+-- Project 4. Query (2) -- Jensen Eicher 9/18/19
+SELECT * FROM hogwarts_students;
+
+-- 1. How many Slytherin students are there?
+SELECT COUNT(*) FROM hogwarts_students WHERE house = 'Slytherin';
+
+-- 2. What is the earliest start year of any student in our data?
+SELECT MIN(start) FROM hogwarts_students;
+
+-- 3. How many students have some missing information?
+SELECT COUNT(*) FROM hogwarts_students WHERE house ISNULL OR start ISNULL OR finish ISNULL;
+
+-- 4. How many Defense Against the Dark Arts (DADA) teachers have first names the same length as their last names?
+SELECT COUNT(*) FROM hogwarts_dada WHERE LENGTH(last) = LENGTH(first);
+
+-- 5. How many students are listed in each house (include the number who have no house listed as well; order by greatest number of students first)?
+SELECT house, COUNT(*) FROM hogwarts_students GROUP BY house ORDER BY COUNT(*) DESC;
+
+-- 6. Which houses have more than 20 associated student records, and how many students are in those houses?
+SELECT house, COUNT(*) FROM hogwarts_students GROUP BY house HAVING COUNT(*) > 20;
+
+--7. By house, what was the average number of years spent at Hogwarts by students for whom we know both start and end years? Order by average number of years.
+SELECT house, AVG(finish-start) FROM hogwarts_students WHERE start IS NOT NULL AND finish IS NOT NULL GROUP BY house ORDER BY AVG(finish-start);
+
+--8. Which family names (last names) appear exactly twice in the hogwarts_students table?
+SELECT last, COUNT(*) FROM hogwarts_students GROUP BY last HAVING COUNT(*) = 2;
+
+--9. What are the names, houses, and house colors of the Defense Against the Dark Arts teachers (you only need to worry about the teachers who also have student records)
+SELECT hogwarts_dada.first, hogwarts_dada.last, hogwarts_students.house, hogwarts_houses.colors FROM hogwarts_dada, hogwarts_students, hogwarts_houses WHERE hogwarts_dada.first = hogwarts_students.first AND hogwarts_students.house = hogwarts_houses.house;
+
+--10. Who is the earliest known student, and what year did they start
+SELECT first, last, start FROM hogwarts_students WHERE start = (SELECT MIN(start) FROM hogwarts_students);
+
+--11. Which student has the shortest first name?
+SELECT first, last FROM hogwarts_students WHERE first = (SELECT MIN(first) FROM hogwarts_students);
+
+--12. Who were the Gryffindors who would have had Dolores Umbridge as DADA teacher (assume all students take DADA, and all students are at school for the entire school year starting in Fall and ending in Spring, keeping in mind that each DADA teacher listed started in Fall and left the following Spring)?
+SELECT first, last FROM hogwarts_students WHERE house = 'Gryffindor' AND ((SELECT start FROM hogwarts_dada WHERE last = 'Umbridge') - hogwarts_students.start > (SELECT start FROM hogwarts_dada WHERE last = 'Umbridge') - (SELECT finish FROM hogwarts_dada WHERE last = 'Umbridge'));
+
+--13. Which students have had other family members attend Hogwarts (assume anyone with the same last name is a family member)? Order by last name and first name.
+SELECT first, last FROM hogwarts_students WHERE last IN (SELECT last FROM hogwarts_students GROUP BY last HAVING COUNT(*) > 1) ORDER BY last, first;
+
+--14. How many students of each house are known to have started the year that Alastor Moody was the appointed DADA teacher?
+SELECT COUNT(*) FROM hogwarts_students WHERE start = (SELECT start FROM hogwarts_dada WHERE last = 'Moody');
+
+--15. What student (last, first, house) started in the same year as, has the same length first and last names as, but a different house than, a student with initials "S. B." who was in a house with a Badger as its heraldic animal?
+SELECT last, first, house FROM hogwarts_students WHERE
+LENGTH(first) = LENGTH((SELECT first FROM hogwarts_students WHERE first LIKE 'S%' AND last LIKE 'B%' AND house = (SELECT house FROM hogwarts_houses WHERE animal = 'Badger')))
+AND LENGTH(last) = LENGTH((SELECT last FROM hogwarts_students WHERE first LIKE 'S%' AND last LIKE 'B%' AND house = (SELECT house FROM hogwarts_houses WHERE animal = 'Badger')))
+AND house != (SELECT house FROM hogwarts_students WHERE first LIKE 'S%' AND last LIKE 'B%' AND house = (SELECT house FROM hogwarts_houses WHERE animal = 'Badger'))
+AND start = (SELECT start FROM hogwarts_students WHERE first LIKE 'S%' AND last LIKE 'B%' AND house = (SELECT house FROM hogwarts_houses WHERE animal = 'Badger'));

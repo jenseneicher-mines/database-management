@@ -1,0 +1,9 @@
+SELECT * FROM project1;
+
+Returns:
+
+ line 	 stanza
+1    0	 Hatred stops the mouths.
+2    1	 Sometimes playing, midnight sings.
+3    2	 Strange silver snow burns.
+4    <null> --from http://peterhoward.org/haikugen/framset1.htm
